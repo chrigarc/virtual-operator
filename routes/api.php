@@ -20,3 +20,4 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 */
 
 Route::post('/call', [\App\Http\Controllers\CallController::class, 'call'])->name('call');
+Route::post('/call/bye', [\App\Http\Controllers\CallController::class, 'bye'])->name('call.bye');

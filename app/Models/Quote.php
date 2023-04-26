@@ -12,10 +12,28 @@ class Quote extends Model
 
     const WELCOME = 'welcome';
     const LANGUAGE = 'language';
+    const FUN_FACT = 'fun-fact';
+    const ASK = 'ask';
+    const BYE = 'bye';
 
     public function scopeWelcome(Builder $query)
     {
         $query->where('type', self::WELCOME);
+    }
+
+    public function scopeFunFact(Builder $query)
+    {
+        $query->where('type', self::FUN_FACT);
+    }
+
+    public function scopeAsk(Builder $query)
+    {
+        $query->where('type', self::ASK);
+    }
+
+    public function scopeBye(Builder $query)
+    {
+        $query->where('type', self::BYE);
     }
 
     public function getLanguageDataAttribute()
