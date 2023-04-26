@@ -18,7 +18,7 @@ class Quote extends Model
         $query->where('type', self::WELCOME);
     }
 
-    public function getLanguageDateAttribute()
+    public function getLanguageDataAttribute()
     {
         return [self::LANGUAGE => $this->attributes['language']];
     }
