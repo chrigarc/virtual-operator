@@ -17,7 +17,8 @@ class CallController extends Controller
         $askMessage = Quote::ask()->inRandomOrder()->first();
         $response->gather([
             'action' => route('call.bye'),
-            'input' => 'speech'
+            'input' => 'speech',
+            'language' => $askMessage->languageData
         ])->say($askMessage->content, $askMessage->languageData);
         $funFactMessage = Quote::funFact()->inRandomOrder()->first();
         $response->say($funFactMessage->content, $funFactMessage->languageData);
@@ -29,6 +30,10 @@ class CallController extends Controller
     public function bye()
     {
         $response = new VoiceResponse();
+        $requestMessage = request()->SpeechResult;
+        if($requestMessage){
+            $response->say($requestMessage, ['language' => request()->Language]);
+        }
         $message = Quote::bye()->inRandomOrder()->first();
         $response->say($message->content, $message->languageData);
         return response($response->__toString(), 200)
