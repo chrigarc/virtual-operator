@@ -16,10 +16,12 @@ class CallController extends Controller
 
         $askMessage = Quote::ask()->inRandomOrder()->first();
         $response->gather([
-            'action' => route('call.bye')
+            'action' => route('call.bye'),
+            'input' => 'speech dtmf'
         ])->say($askMessage->content, $askMessage->languageData);
         $funFactMessage = Quote::funFact()->inRandomOrder()->first();
         $response->say($funFactMessage->content, $funFactMessage->languageData);
+        $response->redirect(route('call.bye'));
         return response($response->__toString(), 200)
             ->header('Content-Type', 'text/xml');
     }
