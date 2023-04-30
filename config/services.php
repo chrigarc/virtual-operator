@@ -31,4 +31,7 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'open_ia' => [
+        'token' => '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'
+    ]
 ];

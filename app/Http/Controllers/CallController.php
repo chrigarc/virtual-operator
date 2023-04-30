@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Quote;
+use App\Services\OpenIAService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Twilio\TwiML\VoiceResponse;
 
 class CallController extends Controller
@@ -13,17 +15,43 @@ class CallController extends Controller
         $response = new VoiceResponse();
         $welcomeMessage = Quote::welcome()->inRandomOrder()->first();
         $response->say($welcomeMessage->content, $welcomeMessage->languageData);
+        $response->redirect(route('call.gather'));
+        return response($response->__toString(), 200)
+            ->header('Content-Type', 'text/xml');
+    }
 
-        $askMessage = Quote::ask()->inRandomOrder()->first();
-        $response->gather([
-            'action' => route('call.bye'),
-            'input' => 'speech',
-            'language' => $askMessage->languageData['language'],
-            'timeout' => 2
-        ])->say($askMessage->content, $askMessage->languageData);
-        $funFactMessage = Quote::funFact()->inRandomOrder()->first();
-        $response->say($funFactMessage->content, $funFactMessage->languageData);
-        $response->redirect(route('call.bye'));
+    public function gather()
+    {
+        $response = new VoiceResponse();
+        $service = new OpenIAService();
+        $bye = false;
+        $requestMessage = request()->SpeechResult;
+        if($requestMessage){
+            $response = $service->chatFriend($requestMessage);
+            if(isset($response['choices'][0]['text'])){
+                $responseMessage = $response['choices'][0]['text'];
+                if(Str::contains($responseMessage, ' adios')){
+                    $response->redirect(route('call.bye'));
+                    $bye = true;
+                }else{
+                    $response->say($responseMessage, ['language' => request()->Language]);
+                }
+            }
+            //$response->say($requestMessage, ['language' => request()->Language]);
+        }else{
+            $askMessage = Quote::ask()->inRandomOrder()->first();
+            $response->gather([
+                'action' => route('call.bye'),
+                'input' => 'speech',
+                'language' => $askMessage->languageData['language'],
+                'timeout' => 2
+            ])->say($askMessage->content, $askMessage->languageData);
+            $funFactMessage = Quote::funFact()->inRandomOrder()->first();
+            $response->say($funFactMessage->content, $funFactMessage->languageData);
+        }
+        if(!$bye){
+            $response->redirect(route('call.gather'));
+        }
         return response($response->__toString(), 200)
             ->header('Content-Type', 'text/xml');
     }
