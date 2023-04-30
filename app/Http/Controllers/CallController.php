@@ -35,7 +35,7 @@ class CallController extends Controller
                     $response->redirect(route('call.bye'));
                     $bye = true;
                 }else{
-                    info('responseMessage', $responseMessage);
+                    info('responseMessage', [$responseMessage]);
                     $response->say($responseMessage, ['language' => request()->Language]);
                 }
             }
