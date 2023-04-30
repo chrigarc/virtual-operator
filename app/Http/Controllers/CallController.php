@@ -30,10 +30,11 @@ class CallController extends Controller
             $response = $service->chatFriend($requestMessage);
             if(isset($response['choices'][0]['text'])){
                 $responseMessage = $response['choices'][0]['text'];
-                if(Str::contains($responseMessage, ' adios')){
+                if(Str::contains($responseMessage, [' adios'])){
                     $response->redirect(route('call.bye'));
                     $bye = true;
                 }else{
+                    info('responseMessage', $responseMessage);
                     $response->say($responseMessage, ['language' => request()->Language]);
                 }
             }
