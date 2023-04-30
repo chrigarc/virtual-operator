@@ -30,6 +30,7 @@ class CallController extends Controller
             $response = $service->chatFriend($requestMessage);
             if(isset($response['choices'][0]['text'])){
                 $responseMessage = $response['choices'][0]['text'];
+                info('responseMessage', $responseMessage);
                 if(Str::contains($responseMessage, [' adios'])){
                     $response->redirect(route('call.bye'));
                     $bye = true;
@@ -45,7 +46,7 @@ class CallController extends Controller
                 'action' => route('call.gather'),
                 'input' => 'speech',
                 'language' => $askMessage->languageData['language'],
-                'timeout' => 2
+                'timeout' => 3
             ])->say($askMessage->content, $askMessage->languageData);
             $funFactMessage = Quote::funFact()->inRandomOrder()->first();
             $response->say($funFactMessage->content, $funFactMessage->languageData);
