@@ -18,7 +18,8 @@ class CallController extends Controller
         $response->gather([
             'action' => route('call.bye'),
             'input' => 'speech',
-            'language' => $askMessage->languageData['language']
+            'language' => $askMessage->languageData['language'],
+            'timeout' => 2
         ])->say($askMessage->content, $askMessage->languageData);
         $funFactMessage = Quote::funFact()->inRandomOrder()->first();
         $response->say($funFactMessage->content, $funFactMessage->languageData);
