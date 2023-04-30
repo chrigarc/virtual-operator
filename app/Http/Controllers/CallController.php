@@ -41,7 +41,7 @@ class CallController extends Controller
         }else{
             $askMessage = Quote::ask()->inRandomOrder()->first();
             $response->gather([
-                'action' => route('call.bye'),
+                'action' => route('call.gather'),
                 'input' => 'speech',
                 'language' => $askMessage->languageData['language'],
                 'timeout' => 2
