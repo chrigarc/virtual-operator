@@ -27,9 +27,9 @@ class CallController extends Controller
         $bye = false;
         $requestMessage = request()->SpeechResult;
         if($requestMessage){
-            $response = $service->chatFriend($requestMessage);
-            if(isset($response['choices'][0]['text'])){
-                $responseMessage = $response['choices'][0]['text'];
+            $responseService = $service->chatFriend($requestMessage);
+            if(isset($responseService['choices'][0]['text'])){
+                $responseMessage = $responseService['choices'][0]['text'];
                 info('responseMessage', [$responseMessage]);
                 if(Str::contains($responseMessage, [' adios'])){
                     $response->redirect(route('call.bye'));
