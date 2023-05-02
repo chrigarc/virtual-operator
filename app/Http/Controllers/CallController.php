@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Quote;
+use App\Services\AwsService;
 use App\Services\OpenIAService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -10,11 +11,19 @@ use Twilio\TwiML\VoiceResponse;
 
 class CallController extends Controller
 {
+    private $awsService;
+
+    public function __construct()
+    {
+        $this->awsService = new AwsService();
+    }
+
     public function call()
     {
         $response = new VoiceResponse();
         $welcomeMessage = Quote::welcome()->inRandomOrder()->first();
-        $response->say($welcomeMessage->content, $welcomeMessage->languageData);
+        $response->play($this->awsService->pollySpeech($welcomeMessage->content));
+      //  $response->say($welcomeMessage->content, $welcomeMessage->languageData);
         $response->redirect(route('call.gather'));
         return response($response->__toString(), 200)
             ->header('Content-Type', 'text/xml');
@@ -35,15 +44,14 @@ class CallController extends Controller
                     $bye = true;
                 }else{
                     $this->runGather($response, $responseMessage, request()->Language);
-            //        $response->say($responseMessage, ['language' => request()->Language]);
                 }
             }
-            //$response->say($requestMessage, ['language' => request()->Language]);
         }else{
             $askMessage = Quote::ask()->inRandomOrder()->first();
             $this->runGather($response, $askMessage->content, $askMessage->languageData['language']);
             $funFactMessage = Quote::funFact()->inRandomOrder()->first();
-            $response->say($funFactMessage->content, $funFactMessage->languageData);
+            //$response->say($funFactMessage->content, $funFactMessage->languageData);
+            $response->play($this->awsService->pollySpeech($funFactMessage->content));
         }
         if(!$bye){
             $response->redirect(route('call.gather'));
@@ -57,10 +65,11 @@ class CallController extends Controller
         $response->gather([
             'action' => route('call.gather'),
             'input' => 'speech',
-            //'language' => $askMessage->languageData['language']7,
             'language' => $language,
             'timeout' => 2
-        ])->say($message, ['language' => $language]);
+        ]);
+        //$response->say($message, ['language' => $language]);
+        $response->play($this->awsService->pollySpeech($message));
     }
 
     public function bye()
