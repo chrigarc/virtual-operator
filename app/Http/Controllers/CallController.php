@@ -30,22 +30,18 @@ class CallController extends Controller
             $responseService = $service->chatFriend($requestMessage);
             if(isset($responseService['choices'][0]['text'])){
                 $responseMessage = Str::lower($responseService['choices'][0]['text']);
-                if(Str::contains($responseMessage, [' adios', ' adiós', 'adios'])){
+                if(Str::contains($responseMessage, [' adios', ' adiós', 'adios', 'hasta pronto'])){
                     $response->redirect(route('call.bye'));
                     $bye = true;
                 }else{
-                    $response->say($responseMessage, ['language' => request()->Language]);
+                    $this->runGather($response, $responseMessage, request()->Language);
+            //        $response->say($responseMessage, ['language' => request()->Language]);
                 }
             }
             //$response->say($requestMessage, ['language' => request()->Language]);
         }else{
             $askMessage = Quote::ask()->inRandomOrder()->first();
-            $response->gather([
-                'action' => route('call.gather'),
-                'input' => 'speech',
-                'language' => $askMessage->languageData['language'],
-                'timeout' => 2
-            ])->say($askMessage->content, $askMessage->languageData);
+            $this->runGather($response, $askMessage->content, $askMessage->languageData['language']);
             $funFactMessage = Quote::funFact()->inRandomOrder()->first();
             $response->say($funFactMessage->content, $funFactMessage->languageData);
         }
@@ -54,6 +50,17 @@ class CallController extends Controller
         }
         return response($response->__toString(), 200)
             ->header('Content-Type', 'text/xml');
+    }
+
+    private function runGather(&$response, $message, $language)
+    {
+        $response->gather([
+            'action' => route('call.gather'),
+            'input' => 'speech',
+            //'language' => $askMessage->languageData['language']7,
+            'language' => $language,
+            'timeout' => 2
+        ])->say($message, ['language' => $language]);
     }
 
     public function bye()
